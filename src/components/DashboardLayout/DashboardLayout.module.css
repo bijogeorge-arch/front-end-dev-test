@@ -15,16 +15,65 @@
   position: relative;
 }
 
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
 .filterSidebar {
   background-color: var(--color-background-surface);
   border-right: 1px solid var(--color-border);
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-sm);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-sm);
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
+}
+
+/* ── Accordion Styles ─────────────────────────────────────────────────────── */
+.accordion {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-background-surface);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.accordion:hover {
+  border-color: var(--color-border-hover);
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  font-family: var(--font-family);
+  transition: background-color var(--transition-fast);
+}
+
+.accordionHeader:hover {
+  background-color: var(--color-background-app);
+}
+
+.accordionTitle {
+  font-size: var(--font-size-labels);
+  font-weight: var(--font-weight-labels);
+  color: var(--color-text-primary);
+}
+
+.accordionIcon {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.accordionContent {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-background-surface);
 }
 
 .filterSidebar::-webkit-scrollbar {
@@ -53,26 +102,7 @@
   display: block;
 }
 
-.filterPlaceholder {
-  border: 2px dashed var(--color-border);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-lg);
-  color: var(--color-text-muted);
-  text-align: center;
-  font-size: var(--font-size-sm);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  min-height: 200px;
-}
-
-.filterSubtext {
-  margin: var(--spacing-xs) 0 0 0;
-  font-size: var(--font-size-xs);
-}
-
+/* ── Main Canvas ──────────────────────────────────────────────────────────── */
 .mainCanvas {
   background-color: var(--color-background-app);
   overflow: hidden;
@@ -80,13 +110,30 @@
   flex-direction: column;
 }
 
-.canvasToolbar {
+/* ── Tasks Header (title + count + sort) ─────────────────────────────────── */
+.tasksHeader {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--color-border);
   background-color: var(--color-background-surface);
+  flex-shrink: 0;
+  gap: var(--spacing-md);
+}
+
+.tasksTitle {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.tasksHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   flex-shrink: 0;
 }
 
@@ -95,20 +142,73 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.sortWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-background-app);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: 5px var(--spacing-sm);
+}
+
+.sortIcon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.sortLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.sortSelect {
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .canvasScrollContainer {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-lg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
-/* Mobile Actions Toolbar */
+.canvasScrollContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.canvasScrollContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.canvasScrollContainer::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.canvasScrollContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* ── Mobile Actions Toolbar ───────────────────────────────────────────────── */
 .mobileActions {
   display: none;
 }
 
-/* Backdrop for Mobile Drawer */
+/* ── Backdrop for Mobile Drawer ───────────────────────────────────────────── */
 .backdrop {
   position: fixed;
   top: var(--header-height);
@@ -126,10 +226,10 @@
   to { opacity: 1; }
 }
 
-/* Tablet & Mobile layout adjustments */
+/* ── Tablet & Mobile ─────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .dashboardContainer {
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 260px 1fr;
   }
 }
 
@@ -217,24 +317,20 @@
     display: block;
   }
 
-  .filterPlaceholder {
-    min-height: 80px;
-    padding: var(--spacing-sm);
-  }
-
   .canvasScrollContainer {
     padding: var(--spacing-md);
   }
 
-  .canvasToolbar {
-    justify-content: space-between;
+  .tasksHeader {
     padding: var(--spacing-sm) var(--spacing-md);
-    gap: var(--spacing-sm);
+    flex-wrap: wrap;
   }
 
   .mobileActions {
     display: flex;
     gap: var(--spacing-xs);
+    order: -1;
+    width: 100%;
   }
 
   .mobileActionButton {
@@ -249,6 +345,9 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   .mobileActionButton:hover,
@@ -256,5 +355,9 @@
     background-color: var(--color-primary);
     color: var(--color-text-on-primary);
     border-color: var(--color-primary);
+  }
+
+  .sortLabel {
+    display: none;
   }
 }

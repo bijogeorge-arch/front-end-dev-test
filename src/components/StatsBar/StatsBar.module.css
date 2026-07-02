@@ -1,0 +1,177 @@
+/* Stats bar: horizontal scrollable row of clickable stat cards */
+.statsBar {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-background-app);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.statsBar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Base stat card ───────────────────────────────────────────────────────── */
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  min-width: 140px;
+  flex: 1;
+  flex-shrink: 0;
+  font-family: var(--font-family);
+  transition: transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+  background-color: var(--color-stat-card-background);
+  color: var(--color-text-primary);
+  text-align: left;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  border-color: var(--color-border-hover);
+}
+
+.statCard:active {
+  transform: scale(0.98);
+}
+
+/* Active state — raised appearance */
+.active {
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+  border-width: 2px;
+}
+
+/* Icon circle */
+.iconWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Text block */
+.statBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.statCount {
+  font-size: 22px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  margin-top: 1px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Color Variants ───────────────────────────────────────────────────────── */
+
+.cardTotal {
+  color: var(--color-text-primary);
+}
+.cardTotal .iconWrapper {
+  background-color: rgba(79, 70, 229, 0.12);
+  color: #4F46E5;
+}
+.cardTotal.active {
+  border-color: #4F46E5;
+}
+
+.cardPending {
+  color: var(--color-text-primary);
+}
+.cardPending .iconWrapper {
+  background-color: rgba(14, 165, 233, 0.12);
+  color: #0EA5E9;
+}
+.cardPending.active {
+  border-color: #0EA5E9;
+}
+
+.cardProgress {
+  color: var(--color-text-primary);
+}
+.cardProgress .iconWrapper {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #F59E0B;
+}
+.cardProgress.active {
+  border-color: #F59E0B;
+}
+
+.cardCompleted {
+  color: var(--color-text-primary);
+}
+.cardCompleted .iconWrapper {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+}
+.cardCompleted.active {
+  border-color: #10B981;
+}
+
+.cardRejected {
+  color: var(--color-text-primary);
+}
+.cardRejected .iconWrapper {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+}
+.cardRejected.active {
+  border-color: #EF4444;
+}
+
+.cardOverdue {
+  background-color: var(--color-overdue-bg);
+  border-color: var(--color-overdue-border);
+  color: var(--color-overdue-text);
+  cursor: default;
+}
+.cardOverdue .iconWrapper {
+  background-color: rgba(194, 65, 12, 0.12);
+}
+
+[data-theme='dark'] .statCard { background-color: var(--color-stat-card-background); }
+[data-theme='dark'] .cardTotal    { border-color: rgba(79, 70, 229, 0.3); }
+[data-theme='dark'] .cardPending  { border-color: rgba(14, 165, 233, 0.3); }
+[data-theme='dark'] .cardProgress { border-color: rgba(245, 158, 11, 0.3); }
+[data-theme='dark'] .cardCompleted { border-color: rgba(16, 185, 129, 0.3); }
+[data-theme='dark'] .cardRejected  { border-color: rgba(239, 68, 68, 0.3); }
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .statCard {
+    min-width: 110px;
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .iconWrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .statCount {
+    font-size: var(--font-size-lg);
+  }
+}

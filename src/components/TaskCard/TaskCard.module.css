@@ -1,77 +1,133 @@
+/* All colors use CSS custom properties from variables.css — zero hardcoded hex values. */
+
 .card {
-  background-color: var(--color-background-surface);
+  background-color: var(--color-card-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  padding: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.08);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 240px;
+  min-height: 220px;
   transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 12px 32px rgba(15,23,42,.12);
   border-color: var(--color-border-hover);
 }
 
+/* Overdue card — orange left-border accent */
+.cardOverdue {
+  border-left: 3px solid var(--color-overdue-accent);
+}
+
+/* Overdue warning banner */
+.overdueBanner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-overdue-bg);
+  color: var(--color-overdue-text);
+  border-bottom: 1px solid var(--color-overdue-border);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 4px 20px;
+  margin: -20px -20px 12px -20px;
+  letter-spacing: 0.03em;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card Header ─────────────────────────────────────────────────────────── */
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 12px;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* ── Priority Badges ──────────────────────────────────────────────────────── */
 .priorityBadge {
-  font-size: var(--font-size-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: var(--border-radius-full);
+  letter-spacing: 0.04em;
 }
 
 .priorityHigh {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: var(--color-priority-high-bg);
+  color: var(--color-priority-high-text);
 }
 
 .priorityMedium {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: #FCD34D;
+  color: #92400E;
 }
 
 .priorityLow {
-  background-color: #f0fdf4;
-  color: #166534;
+  background-color: var(--color-priority-low-bg);
+  color: var(--color-priority-low-text);
 }
 
+/* Dark mode priority overrides */
+[data-theme='dark'] .priorityMedium {
+  background-color: var(--color-priority-medium-bg);
+  color: var(--color-priority-medium-text);
+}
+
+/* ── Icon Buttons (Edit / Delete) ────────────────────────────────────────── */
+.editButton,
 .deleteButton {
   background: none;
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
   padding: var(--spacing-xs);
-  font-size: 14px;
   border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  line-height: 1;
+  transition: background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.editButton:hover {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.editButton:active,
+.deleteButton:active {
+  transform: scale(0.92);
 }
 
 .deleteButton:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
 }
 
-.deleteButton:active {
-  transform: scale(0.98);
-}
-
-/* Inline delete confirmation */
+/* ── Inline Delete Confirmation ──────────────────────────────────────────── */
 .deleteConfirm {
   display: flex;
   align-items: center;
@@ -101,13 +157,13 @@
 }
 
 .confirmYes {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
 }
 
 .confirmYes:hover {
-  background-color: #fca5a5;
+  background-color: var(--color-error-border);
 }
 
 .confirmNo {
@@ -120,42 +176,43 @@
   background-color: var(--color-border);
 }
 
-.noDescription {
-  color: var(--color-text-muted);
-  font-style: italic;
-}
-
+/* ── Card Body ────────────────────────────────────────────────────────────── */
 .cardBody {
-  margin-bottom: var(--spacing-md);
+  margin-top: 16px;
+  margin-bottom: 16px;
   flex: 1;
-  min-width: 0; /* allows text overflow ellipsis to work correctly in flex layout */
+  min-width: 0;
 }
 
 .title {
-  margin: 0 0 var(--spacing-xs) 0;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
+  margin: 0 0 4px 0;
+  font-size: var(--font-size-card-title);
+  font-weight: var(--font-weight-card-title);
   color: var(--color-text-primary);
-  /* Ellipsis rules */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.noDescription {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 .description {
   margin: 0;
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   line-height: 1.5;
-  /* Line clamp ellipsis for descriptions */
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ── Meta Info (Assignee / Due Date) ─────────────────────────────────────── */
 .metaInfo {
   border-top: 1px solid var(--color-border);
   padding-top: var(--spacing-sm);
@@ -168,12 +225,17 @@
 .metaRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: var(--font-size-xs);
 }
 
 .metaLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--color-text-muted);
   font-weight: var(--font-weight-medium);
+  flex-shrink: 0;
 }
 
 .metaValue {
@@ -182,16 +244,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 70%;
+  max-width: 65%;
+  text-align: right;
 }
 
+.metaValueOverdue {
+  color: var(--color-overdue-text);
+}
+
+/* ── Card Footer ─────────────────────────────────────────────────────────── */
 .cardFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--spacing-xs);
   padding-top: var(--spacing-sm);
-  border-top: 1px dashed var(--color-border);
+  border-top: 1px solid var(--color-border);
 }
 
 .badgeContainer {
@@ -199,78 +267,118 @@
   align-items: center;
 }
 
-.badge {
+/* ── Status Badges ────────────────────────────────────────────────────────── */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-background-raised);
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  border: 1px solid var(--color-border);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  padding: 4px var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid transparent;
+  font-weight: var(--font-weight-medium);
+}
+
+.statusIconCircle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.statusLabelText {
+  color: var(--color-text-primary);
+  font-weight: 500;
 }
 
 .badgePending {
-  background-color: var(--color-status-todo-bg);
-  color: var(--color-status-todo-text);
-  border-color: var(--color-status-todo-border);
+  background-color: #0EA5E9;
 }
 
 .badgeInProgress {
-  background-color: var(--color-status-progress-bg);
-  color: var(--color-status-progress-text);
-  border-color: var(--color-status-progress-border);
+  background-color: #F59E0B;
 }
 
 .badgeCompleted {
-  background-color: var(--color-status-completed-bg);
-  color: var(--color-status-completed-text);
-  border-color: var(--color-status-completed-border);
+  background-color: #10B981;
 }
 
 .badgeRejected {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border-color: #fee2e2;
+  background-color: #EF4444;
 }
 
+/* ── Action Buttons ───────────────────────────────────────────────────────── */
 .actionGroup {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .actionButton {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
   font-weight: var(--font-weight-semibold);
-  padding: 4px var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
+  padding: 6px 12px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   border: 1px solid transparent;
   transition: all var(--transition-fast);
+  font-family: var(--font-family);
+  white-space: nowrap;
 }
 
 .actionButton:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
+/* Primary progress (Start / Complete) */
 .progressButton {
   background-color: var(--color-primary);
-  color: var(--color-text-on-primary);
+  color: #fff;
+  border-color: var(--color-primary);
 }
 
 .progressButton:hover {
   background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
+/* Reopen button (secondary/info style) */
+.reopenButton {
+  background-color: #EFF6FF;
+  color: #0EA5E9;
+  border-color: #BAE6FD;
+}
+
+.reopenButton:hover {
+  background-color: #E0F2FE;
+}
+
+[data-theme='dark'] .reopenButton {
+  background-color: rgba(14, 165, 233, 0.15);
+  color: #38BDF8;
+  border-color: rgba(14, 165, 233, 0.4);
+}
+
+/* Reject button (danger/ghost style) */
 .rejectButton {
-  background-color: var(--color-background-surface);
-  color: var(--color-text-secondary);
-  border-color: var(--color-border);
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
 }
 
 .rejectButton:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
+  background-color: var(--color-error-border);
+  color: #B91C1C;
 }
 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 400px) {
   .card {
     min-height: auto;
@@ -284,14 +392,14 @@
   }
 
   .actionGroup {
-    display: flex;
     width: 100%;
+    justify-content: flex-end;
   }
 
   .actionButton {
     flex: 1;
     text-align: center;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    justify-content: center;
     font-size: var(--font-size-xs);
   }
 

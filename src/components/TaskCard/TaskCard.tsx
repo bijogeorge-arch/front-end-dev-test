@@ -1,223 +1,281 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import styles from "./TaskCard.module.css";
 import { Task, TaskPriority, TaskStatus } from "../../types/task";
+import {
+  RotateCcw, AlertTriangle, Pencil, Trash2,
+  User, Calendar, ArrowUp, ArrowRight, ArrowDown,
+  X, Play, Check, Clock
+} from 'lucide-react';
 
 interface TaskCardProps {
   task: Task;
   onDelete: (id: number) => void;
   onUpdateStatus: (id: number, status: TaskStatus) => void;
+  onEdit: (task: Task) => void;
 }
 
 /**
- * Formats an ISO date string (YYYY-MM-DD) into a human-readable format.
- * The 'T00:00:00' suffix forces local-timezone parsing to avoid UTC off-by-one-day issues.
+ * Formats an ISO date string (YYYY-MM-DD) into a locale-friendly format.
+ * The 'T00:00:00' suffix forces local-timezone parsing, preventing the
+ * common UTC off-by-one-day bug when calling `toLocaleDateString`.
  */
-const formatDueDate = (isoDate: string): string => {
-  const date = new Date(`${isoDate}T00:00:00`);
-  return date.toLocaleDateString("en-US", {
+const formatDueDate = (isoDate: string): string =>
+  new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
-};
 
-export const TaskCard: React.FC<TaskCardProps> = ({
-  task,
-  onDelete,
-  onUpdateStatus,
-}) => {
-  const { id, title, description, status, priority, assignedTo, dueDate } = task;
-
-  // Inline delete confirmation state — avoids disruptive window.confirm()
-  const [pendingDelete, setPendingDelete] = useState(false);
-
-  // ─── Switch-case: Status Badge Rendering ────────────────────────────────
-  const renderStatusBadge = (taskStatus: TaskStatus) => {
-    switch (taskStatus) {
-      case "Pending":
-        return (
-          <span className={`${styles.badge} ${styles.badgePending}`}>
-            Pending
-          </span>
-        );
-      case "In Progress":
-        return (
-          <span className={`${styles.badge} ${styles.badgeInProgress}`}>
-            In Progress
-          </span>
-        );
-      case "Completed":
-        return (
-          <span className={`${styles.badge} ${styles.badgeCompleted}`}>
-            Completed
-          </span>
-        );
-      case "Rejected":
-        return (
-          <span className={`${styles.badge} ${styles.badgeRejected}`}>
-            Rejected
-          </span>
-        );
-      default:
-        return <span className={styles.badge}>{taskStatus}</span>;
-    }
-  };
-
-  // ─── Switch-case: Priority Badge Rendering ───────────────────────────────
-  const renderPriorityBadge = (taskPriority: TaskPriority) => {
-    switch (taskPriority) {
-      case "High":
-        return (
-          <span className={`${styles.priorityBadge} ${styles.priorityHigh}`}>
-            High
-          </span>
-        );
-      case "Medium":
-        return (
-          <span className={`${styles.priorityBadge} ${styles.priorityMedium}`}>
-            Medium
-          </span>
-        );
-      case "Low":
-        return (
-          <span className={`${styles.priorityBadge} ${styles.priorityLow}`}>
-            Low
-          </span>
-        );
-      default:
-        return <span className={styles.priorityBadge}>{taskPriority}</span>;
-    }
-  };
-
-  // ─── Switch-case: Next status in progression cycle ───────────────────────
-  const handleAdvanceStatus = () => {
-    switch (status) {
-      case "Pending":
-        onUpdateStatus(id, "In Progress");
-        break;
-      case "In Progress":
-        onUpdateStatus(id, "Completed");
-        break;
-      case "Completed":
-      case "Rejected":
-        onUpdateStatus(id, "Pending");
-        break;
-      default:
-        break;
-    }
-  };
-
-  // ─── Switch-case: Progress button label ─────────────────────────────────
-  const getProgressButtonLabel = (): string => {
-    switch (status) {
-      case "Pending":
-        return "⚡ Start";
-      case "In Progress":
-        return "✓ Complete";
-      case "Completed":
-      case "Rejected":
-        return "↺ Reopen";
-      default:
-        return "Advance";
-    }
-  };
-
-  const handleReject = () => {
-    onUpdateStatus(id, "Rejected");
-  };
-
+/**
+ * Returns true when a task is considered overdue:
+ * its due date is in the past and its status is neither Completed nor Rejected.
+ */
+const isOverdue = (task: Task): boolean => {
+  const today = new Date().toISOString().slice(0, 10);
   return (
-    <div className={styles.card}>
-      {/* Card Header: Priority badge + Delete control */}
-      <div className={styles.cardHeader}>
-        {renderPriorityBadge(priority)}
-
-        {/* Inline delete confirmation — no window.confirm() required */}
-        {pendingDelete ? (
-          <div className={styles.deleteConfirm}>
-            <span className={styles.deleteConfirmText}>Delete?</span>
-            <button
-              className={`${styles.confirmButton} ${styles.confirmYes}`}
-              onClick={() => onDelete(id)}
-              aria-label="Confirm delete"
-            >
-              Yes
-            </button>
-            <button
-              className={`${styles.confirmButton} ${styles.confirmNo}`}
-              onClick={() => setPendingDelete(false)}
-              aria-label="Cancel delete"
-            >
-              No
-            </button>
-          </div>
-        ) : (
-          <button
-            className={styles.deleteButton}
-            onClick={() => setPendingDelete(true)}
-            title="Delete Task"
-            aria-label="Delete Task"
-          >
-            🗑
-          </button>
-        )}
-      </div>
-
-      {/* Card Body: Title + Description */}
-      <div className={styles.cardBody}>
-        <h3 className={styles.title} title={title}>
-          {title}
-        </h3>
-        <p className={styles.description} title={description}>
-          {description || <span className={styles.noDescription}>No description provided.</span>}
-        </p>
-      </div>
-
-      {/* Meta: Assignee + Due Date */}
-      <div className={styles.metaInfo}>
-        <div className={styles.metaRow}>
-          <span className={styles.metaLabel}>👤 Assignee:</span>
-          <span className={styles.metaValue}>{assignedTo}</span>
-        </div>
-        <div className={styles.metaRow}>
-          <span className={styles.metaLabel}>📅 Due:</span>
-          <span className={styles.metaValue}>{formatDueDate(dueDate)}</span>
-        </div>
-      </div>
-
-      {/* Card Footer: Status badge + Action buttons */}
-      <div className={styles.cardFooter}>
-        <div className={styles.badgeContainer}>
-          {renderStatusBadge(status)}
-        </div>
-
-        <div className={styles.actionGroup}>
-          {status !== "Completed" && status !== "Rejected" && (
-            <button
-              className={`${styles.actionButton} ${styles.rejectButton}`}
-              onClick={handleReject}
-              title="Reject Task"
-              aria-label="Reject Task"
-            >
-              ✕ Reject
-            </button>
-          )}
-          <button
-            className={`${styles.actionButton} ${styles.progressButton}`}
-            onClick={handleAdvanceStatus}
-            title={`Transition task to ${
-              status === "Pending"
-                ? "In Progress"
-                : status === "In Progress"
-                ? "Completed"
-                : "Pending"
-            }`}
-            aria-label={getProgressButtonLabel()}
-          >
-            {getProgressButtonLabel()}
-          </button>
-        </div>
-      </div>
-    </div>
+    task.dueDate < today &&
+    task.status !== "Completed" &&
+    task.status !== "Rejected"
   );
 };
+
+// ─── Switch-case: Status Badge ───────────────────────────────────────────────
+const renderStatusBadge = (taskStatus: TaskStatus) => {
+  let Icon = Clock;
+  let statusClass = styles.badgePending;
+  
+  if (taskStatus === "Pending") {
+    Icon = Clock;
+    statusClass = styles.badgePending;
+  } else if (taskStatus === "In Progress") {
+    Icon = Play;
+    statusClass = styles.badgeInProgress;
+  } else if (taskStatus === "Completed") {
+    Icon = Check;
+    statusClass = styles.badgeCompleted;
+  } else if (taskStatus === "Rejected") {
+    Icon = X;
+    statusClass = styles.badgeRejected;
+  }
+
+  return (
+    <span className={styles.statusBadge}>
+      <span className={`${styles.statusIconCircle} ${statusClass}`}>
+        <Icon size={10} strokeWidth={2.5} aria-hidden="true" />
+      </span>
+      <span className={styles.statusLabelText}>{taskStatus}</span>
+    </span>
+  );
+};
+
+// ─── Switch-case: Priority Badge ─────────────────────────────────────────────
+const renderPriorityBadge = (taskPriority: TaskPriority) => {
+  switch (taskPriority) {
+    case "High":
+      return <span className={`${styles.priorityBadge} ${styles.priorityHigh}`}><ArrowUp size={18} strokeWidth={2} aria-hidden="true" /> HIGH</span>;
+    case "Medium":
+      return <span className={`${styles.priorityBadge} ${styles.priorityMedium}`}><ArrowRight size={18} strokeWidth={2} aria-hidden="true" /> MEDIUM</span>;
+    case "Low":
+      return <span className={`${styles.priorityBadge} ${styles.priorityLow}`}><ArrowDown size={18} strokeWidth={2} aria-hidden="true" /> LOW</span>;
+    default:
+      return <span className={styles.priorityBadge}>{taskPriority}</span>;
+  }
+};
+
+// ─── Derive action buttons based on current status ────────────────────────────
+const getActionButtons = (
+  status: TaskStatus,
+  id: number,
+  title: string,
+  onUpdateStatus: (id: number, status: TaskStatus) => void,
+  styles: Record<string, string>
+) => {
+  switch (status) {
+    case "Pending":
+      return (
+        <>
+          <button
+            className={`${styles.actionButton} ${styles.rejectButton}`}
+            onClick={() => onUpdateStatus(id, "Rejected")}
+            title="Reject Task"
+            aria-label={`Reject task: ${title}`}
+          >
+            <X size={18} strokeWidth={2} aria-hidden="true" /> Reject
+          </button>
+          <button
+            className={`${styles.actionButton} ${styles.progressButton}`}
+            onClick={() => onUpdateStatus(id, "In Progress")}
+            title="Start task"
+            aria-label={`Start task: ${title}`}
+          >
+            <Play size={18} strokeWidth={2} aria-hidden="true" /> Start
+          </button>
+        </>
+      );
+    case "In Progress":
+      return (
+        <>
+          <button
+            className={`${styles.actionButton} ${styles.rejectButton}`}
+            onClick={() => onUpdateStatus(id, "Rejected")}
+            title="Reject Task"
+            aria-label={`Reject task: ${title}`}
+          >
+            <X size={18} strokeWidth={2} aria-hidden="true" /> Reject
+          </button>
+          <button
+            className={`${styles.actionButton} ${styles.progressButton}`}
+            onClick={() => onUpdateStatus(id, "Completed")}
+            title="Complete task"
+            aria-label={`Complete task: ${title}`}
+          >
+            <Check size={18} strokeWidth={2} aria-hidden="true" /> Complete
+          </button>
+        </>
+      );
+    case "Completed":
+      return (
+        <button
+          className={`${styles.actionButton} ${styles.reopenButton}`}
+          onClick={() => onUpdateStatus(id, "Pending")}
+          title="Reopen task"
+          aria-label={`Reopen task: ${title}`}
+        >
+          <RotateCcw size={18} strokeWidth={2} aria-hidden="true" /> Reopen
+        </button>
+      );
+    case "Rejected":
+      return (
+        <button
+          className={`${styles.actionButton} ${styles.reopenButton}`}
+          onClick={() => onUpdateStatus(id, "Pending")}
+          title="Reopen task"
+          aria-label={`Reopen task: ${title}`}
+        >
+          <RotateCcw size={18} strokeWidth={2} aria-hidden="true" /> Reopen
+        </button>
+      );
+    default:
+      return null;
+  }
+};
+
+/**
+ * Displays a single task as a card with status badges, action buttons,
+ * inline delete confirmation, and an overdue indicator.
+ *
+ * Wrapped in `React.memo` to prevent re-renders when sibling tasks change.
+ */
+export const TaskCard: React.FC<TaskCardProps> = memo(
+  ({ task, onDelete, onUpdateStatus, onEdit }) => {
+    const { id, title, description, status, priority, assignedTo, dueDate } = task;
+
+    // Two-step delete confirmation — avoids disruptive window.confirm() dialogs.
+    const [pendingDelete, setPendingDelete] = useState(false);
+
+    const taskIsOverdue = isOverdue(task);
+
+    return (
+      <article
+        className={`${styles.card} ${taskIsOverdue ? styles.cardOverdue : ""}`}
+        aria-label={`Task: ${title}`}
+      >
+        {/* Overdue warning banner */}
+        {taskIsOverdue && (
+          <div className={styles.overdueBanner} role="alert" aria-live="polite">
+            <AlertTriangle size={18} strokeWidth={2} aria-hidden="true" />
+            Overdue
+          </div>
+        )}
+
+        {/* Card Header: Priority badge + action icons */}
+        <div className={styles.cardHeader}>
+          {renderPriorityBadge(priority)}
+
+          <div className={styles.headerActions}>
+            {/* Edit button */}
+            <button
+              className={styles.editButton}
+              onClick={() => onEdit(task)}
+              title="Edit Task"
+              aria-label={`Edit task: ${title}`}
+            >
+              <Pencil size={18} strokeWidth={2} aria-hidden="true" />
+            </button>
+
+            {/* Inline delete confirmation */}
+            {pendingDelete ? (
+              <div className={styles.deleteConfirm} role="group" aria-label="Confirm deletion">
+                <span className={styles.deleteConfirmText}>Delete?</span>
+                <button
+                  className={`${styles.confirmButton} ${styles.confirmYes}`}
+                  onClick={() => onDelete(id)}
+                  aria-label="Confirm delete"
+                >
+                  Yes
+                </button>
+                <button
+                  className={`${styles.confirmButton} ${styles.confirmNo}`}
+                  onClick={() => setPendingDelete(false)}
+                  aria-label="Cancel delete"
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                className={styles.deleteButton}
+                onClick={() => setPendingDelete(true)}
+                title="Delete Task"
+                aria-label={`Delete task: ${title}`}
+              >
+                <Trash2 size={18} strokeWidth={2} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Card Body: Title + Description */}
+        <div className={styles.cardBody}>
+          <h3 className={styles.title} title={title}>
+            {title}
+          </h3>
+          <p className={styles.description} title={description}>
+            {description || (
+              <span className={styles.noDescription}>No description provided.</span>
+            )}
+          </p>
+        </div>
+
+        {/* Meta: Assignee + Due Date */}
+        <div className={styles.metaInfo}>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}><User size={18} strokeWidth={2} aria-hidden="true" /> Assignee</span>
+            <span className={styles.metaValue} title={assignedTo}>{assignedTo}</span>
+          </div>
+          <div className={styles.metaRow}>
+            <span className={styles.metaLabel}><Calendar size={18} strokeWidth={2} aria-hidden="true" /> Due Date</span>
+            <span
+              className={`${styles.metaValue} ${taskIsOverdue ? styles.metaValueOverdue : ""}`}
+            >
+              {formatDueDate(dueDate)}
+            </span>
+          </div>
+        </div>
+
+        {/* Card Footer: Status badge + Action buttons */}
+        <div className={styles.cardFooter}>
+          <div className={styles.badgeContainer}>
+            {renderStatusBadge(status)}
+          </div>
+
+          <div className={styles.actionGroup}>
+            {getActionButtons(status, id, title, onUpdateStatus, styles)}
+          </div>
+        </div>
+      </article>
+    );
+  }
+);
+
+TaskCard.displayName = "TaskCard";

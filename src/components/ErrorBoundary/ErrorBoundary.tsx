@@ -1,5 +1,25 @@
+/**
+ * @file ErrorBoundary.tsx
+ * @description Class-based React Error Boundary.
+ *
+ * Catches any unhandled JavaScript error anywhere in the component tree
+ * and renders a fallback UI instead of crashing the whole app. Exposes a
+ * "Try Again" button that resets the error state so the user can retry
+ * without a full page reload.
+ *
+ * Must be a class component — React's `getDerivedStateFromError` and
+ * `componentDidCatch` lifecycle methods are not available as hooks.
+ *
+ * Usage:
+ * ```tsx
+ * <ErrorBoundary>
+ *   <RestOfApp />
+ * </ErrorBoundary>
+ * ```
+ */
 import React, { Component, ErrorInfo } from 'react';
 import styles from './ErrorBoundary.module.css';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -33,13 +53,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <div className={styles.errorContainer} role="alert" id="error-boundary-fallback">
-          <div className={styles.errorIcon}>⚠️</div>
+          <div className={styles.errorIcon}><AlertTriangle size={48} aria-hidden="true" /></div>
           <h2 className={styles.errorTitle}>Something went wrong</h2>
           <p className={styles.errorMessage}>
             {this.state.error?.message ?? 'An unexpected error occurred.'}
           </p>
           <button className={styles.retryButton} onClick={this.handleReset}>
-            ↺ Try Again
+            <RotateCcw size={16} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }} />
+            Try Again
           </button>
         </div>
       );

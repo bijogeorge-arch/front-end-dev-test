@@ -1,7 +1,7 @@
-import React from "react";
+import React, { memo } from "react";
 import styles from "./FilterControls.module.css";
-import { TaskStatus, TaskPriority } from "../../types/task";
-import { SortByKey } from "../../hooks/useTaskFilters";
+import { TaskStatus, TaskPriority, SortByKey, TASK_STATUSES, TASK_PRIORITIES } from "../../types/task";
+import { X, RotateCcw } from 'lucide-react';
 
 interface FilterControlsProps {
   statusFilter: TaskStatus | "All";
@@ -10,93 +10,132 @@ interface FilterControlsProps {
   setPriorityFilter: (priority: TaskPriority | "All") => void;
   sortBy: SortByKey;
   setSortBy: (sortBy: SortByKey) => void;
+  isFiltered: boolean;
+  resetFilters: () => void;
 }
 
-export const FilterControls: React.FC<FilterControlsProps> = ({
-  statusFilter,
-  setStatusFilter,
-  priorityFilter,
-  setPriorityFilter,
-  sortBy,
-  setSortBy,
-}) => {
-  const isFiltered =
-    statusFilter !== "All" || priorityFilter !== "All" || sortBy !== "none";
+/**
+ * Renders filter selects and sort controls, plus active-filter pill chips.
+ *
+ * - Uses `TASK_STATUSES` / `TASK_PRIORITIES` constants for `<option>` rendering (DRY).
+ * - Shows dismissible pill chips for any active filter.
+ * - `resetFilters` one-click clears all selections.
+ * - Wrapped in `React.memo` — re-renders only when filter props change.
+ */
+export const FilterControls: React.FC<FilterControlsProps> = memo(
+  ({
+    statusFilter,
+    setStatusFilter,
+    priorityFilter,
+    setPriorityFilter,
+    sortBy,
+    setSortBy,
+    isFiltered,
+    resetFilters,
+  }) => {
+    return (
+      <div className={styles.controlsContainer}>
+        <div className={styles.controlsHeader}>
+          <span className={styles.controlsTitle}>Filters &amp; Sort</span>
+        </div>
 
-  const handleReset = () => {
-    setStatusFilter("All");
-    setPriorityFilter("All");
-    setSortBy("none");
-  };
-
-  return (
-    <div className={styles.controlsContainer}>
-      <div className={styles.controlsHeader}>
-        <span className={styles.controlsTitle}>Filters</span>
+        {/* Active filter pills */}
         {isFiltered && (
-          <button
-            className={styles.resetButton}
-            onClick={handleReset}
-            aria-label="Reset all filters"
-            id="reset-filters-btn"
-          >
-            ↺ Reset
-          </button>
+          <div className={styles.activePills} aria-label="Active filters">
+            {statusFilter !== "All" && (
+              <button
+                className={styles.pill}
+                onClick={() => setStatusFilter("All")}
+                aria-label={`Remove status filter: ${statusFilter}`}
+              >
+                {statusFilter} <X size={12} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle' }} />
+              </button>
+            )}
+            {priorityFilter !== "All" && (
+              <button
+                className={styles.pill}
+                onClick={() => setPriorityFilter("All")}
+                aria-label={`Remove priority filter: ${priorityFilter}`}
+              >
+                {priorityFilter} priority <X size={12} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle' }} />
+              </button>
+            )}
+            {sortBy !== "none" && (
+              <button
+                className={styles.pill}
+                onClick={() => setSortBy("none")}
+                aria-label="Remove sort"
+              >
+                Sort: {sortBy === "dueDate" ? "Due Date" : "Priority"} <X size={12} aria-hidden="true" style={{ display: 'inline', verticalAlign: 'middle' }} />
+              </button>
+            )}
+          </div>
         )}
-      </div>
 
-      <div className={styles.filterGroup}>
-        <label htmlFor="status-filter" className={styles.label}>
-          Status
-        </label>
-        <select
-          id="status-filter"
-          className={styles.select}
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "All")}
-        >
-          <option value="All">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </div>
+        {/* Status filter */}
+        <div className={styles.filterGroup}>
+          <label htmlFor="status-filter" className={styles.label}>Status</label>
+          <select
+            id="status-filter"
+            className={styles.select}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as TaskStatus | "All")}
+            aria-label="Filter by status"
+          >
+            <option value="All">All Statuses</option>
+            {TASK_STATUSES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
 
-      <div className={styles.filterGroup}>
-        <label htmlFor="priority-filter" className={styles.label}>
-          Priority
-        </label>
-        <select
-          id="priority-filter"
-          className={styles.select}
-          value={priorityFilter}
-          onChange={(e) =>
-            setPriorityFilter(e.target.value as TaskPriority | "All")
-          }
-        >
-          <option value="All">All Priorities</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
+        {/* Priority filter */}
+        <div className={styles.filterGroup}>
+          <label htmlFor="priority-filter" className={styles.label}>Priority</label>
+          <select
+            id="priority-filter"
+            className={styles.select}
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "All")}
+            aria-label="Filter by priority"
+          >
+            <option value="All">All Priorities</option>
+            {TASK_PRIORITIES.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
 
-      <div className={styles.filterGroup}>
-        <label htmlFor="sort-by" className={styles.label}>
-          Sort By
-        </label>
-        <select
-          id="sort-by"
-          className={styles.select}
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as SortByKey)}
+        {/* Sort control */}
+        <div className={styles.filterGroup}>
+          <label htmlFor="sort-by" className={styles.label}>Sort By</label>
+          <select
+            id="sort-by"
+            className={styles.select}
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortByKey)}
+            aria-label="Sort tasks"
+          >
+            <option value="none">Default Order</option>
+            <option value="dueDate">Due Date (Soonest First)</option>
+            <option value="priority">Priority (High → Low)</option>
+          </select>
+        </div>
+
+        {/* Clear Filters button — always visible, faded when not filtered */}
+        <button
+          className={`${styles.clearButton} ${!isFiltered ? styles.clearButtonDisabled : ''}`}
+          onClick={resetFilters}
+          aria-label="Reset all filters and sorting"
+          id="reset-filters-btn"
+          disabled={!isFiltered}
         >
-          <option value="none">Default (None)</option>
-          <option value="dueDate">Due Date (Earliest)</option>
-          <option value="priority">Priority (High → Low)</option>
-        </select>
+          <RotateCcw size={13} aria-hidden="true" />
+          Clear Filters
+        </button>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+
+FilterControls.displayName = "FilterControls";

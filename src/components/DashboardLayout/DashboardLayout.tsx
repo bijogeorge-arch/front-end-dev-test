@@ -1,43 +1,84 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './DashboardLayout.module.css';
-import { useTaskStore } from '../../store/useTaskStore';
+import { Task, SortByKey } from '../../types/task';
+import { useTaskContext } from '../../context/TaskContext';
+import { useSearch } from '../../hooks/useSearch';
 import { useTaskFilters } from '../../hooks/useTaskFilters';
 import { SearchBar } from '../SearchBar/SearchBar';
 import { FilterControls } from '../Filter/FilterControls';
 import { TaskList } from '../TaskList/TaskList';
+import { StatsBar } from '../StatsBar/StatsBar';
+import { TaskEditModal } from '../TaskEditModal/TaskEditModal';
+import { TaskForm } from '../TaskForm/TaskForm';
+import { X, Plus, Search, SortAsc } from 'lucide-react';
 
 interface DashboardLayoutProps {
   header: React.ReactNode;
-  children?: React.ReactNode;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, children }) => {
-  const { tasks, deleteTask, updateTaskStatus } = useTaskStore();
+/**
+ * Root layout component that orchestrates the entire dashboard.
+ *
+ * Data flow:
+ *   useTaskContext (useContext → TaskProvider → Zustand store)
+ *     → useSearch (debounced title/assignee filter)
+ *       → useTaskFilters (status/priority filter + sort)
+ *         → TaskList → TaskCard
+ *
+ * Key hooks used:
+ * - `useContext`   — via useTaskContext() to access task state/actions
+ * - `useState`     — loading flag, mobile drawer state, editing task
+ * - `useEffect`    — mount loading timer, ESC keydown listener, scroll-to-top on filter change
+ * - `useCallback`  — stable action handlers passed down to children
+ * - `useRef`       — search input focus, task grid scroll container
+ */
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header }) => {
+  // useContext — task state and actions come from TaskContext (React Context API)
+  const { tasks, deleteTask, updateTaskStatus, initializeTasks } = useTaskContext();
+
+  // Seed mock data on first load (no-op if tasks already exist in localStorage)
+  useEffect(() => {
+    initializeTasks();
+  }, [initializeTasks]);
+
+  // ── Search pipeline (useSearch hook) ─────────────────────────────────────
+  const { searchQuery, setSearchQuery, searchResults, inputRef: searchInputRef } =
+    useSearch(tasks);
+
+  // ── Filter + sort pipeline (useTaskFilters hook) ──────────────────────────
   const {
-    searchQuery,
-    setSearchQuery,
+    filteredTasks,
     statusFilter,
     setStatusFilter,
     priorityFilter,
     setPriorityFilter,
     sortBy,
     setSortBy,
-    filteredTasks,
-  } = useTaskFilters(tasks);
+    isFiltered,
+    resetFilters,
+  } = useTaskFilters(searchResults); // ← receives search-filtered tasks, not raw tasks
 
-  // Simulated loading flag for 500ms on mount — demonstrates useEffect + cleanup
+  // ── UI state ──────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [mobileFormOpen, setMobileFormOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+  // Sidebar accordions state
+  const [createTaskOpen, setCreateTaskOpen] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // useRef — scroll task grid to top whenever the filtered result set changes
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Simulated loading state — demonstrates useEffect with cleanup
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Close mobile panels when ESC is pressed or on resize
+  // Close mobile panels on ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -49,7 +90,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, childr
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // useCallback — stable references for store actions passed to children
+  // Scroll the task grid to top whenever filteredTasks changes
+  useEffect(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [filteredTasks]);
+
+  // Auto-focus search input on mount (demonstrates useRef usage)
+  useEffect(() => {
+    // Small delay lets the loading spinner finish first
+    const t = setTimeout(() => searchInputRef.current?.focus(), 600);
+    return () => clearTimeout(t);
+  }, [searchInputRef]);
+
+  // ── Stable action handlers ────────────────────────────────────────────────
+
   const handleDeleteTask = useCallback(
     (id: number) => deleteTask(id),
     [deleteTask]
@@ -61,96 +115,207 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, childr
     [updateTaskStatus]
   );
 
-  const totalCount = tasks.length;
-  const filteredCount = filteredTasks.length;
-  const isFiltering = filteredCount !== totalCount;
+  const handleEditTask = useCallback((task: Task) => setEditingTask(task), []);
+  const handleCloseEdit = useCallback(() => setEditingTask(null), []);
 
-  const closeMobilePanels = () => {
+  const closeMobilePanels = useCallback(() => {
     setMobileFormOpen(false);
     setMobileFiltersOpen(false);
-  };
+  }, []);
 
+  // ── Derived display values ────────────────────────────────────────────────
+  const totalCount = tasks.length;
+  const filteredCount = filteredTasks.length;
   const isAnyPanelOpen = mobileFormOpen || mobileFiltersOpen;
+  const showingFiltered = filteredCount !== totalCount || searchQuery.trim() !== '';
 
   return (
     <div className={styles.layoutWrapper}>
       {header}
+
+      {/* Edit modal — rendered at portal level (above everything) */}
+      {editingTask && (
+        <TaskEditModal task={editingTask} onClose={handleCloseEdit} />
+      )}
+
       <div className={styles.dashboardContainer}>
-        {/* Backdrop for mobile drawer */}
+        {/* Mobile drawer backdrop */}
         {isAnyPanelOpen && (
-          <div className={styles.backdrop} onClick={closeMobilePanels} />
+          <div
+            className={styles.backdrop}
+            onClick={closeMobilePanels}
+            role="presentation"
+            aria-hidden="true"
+          />
         )}
 
-        <aside className={`${styles.filterSidebar} ${mobileFormOpen ? styles.showForm : ''} ${mobileFiltersOpen ? styles.showFilters : ''}`}>
+        {/* Sidebar: Form + Search + Filters */}
+        <aside
+          className={`${styles.filterSidebar} ${mobileFormOpen ? styles.showForm : ''} ${mobileFiltersOpen ? styles.showFilters : ''}`}
+          aria-label="Task creation and filters"
+        >
           {(mobileFormOpen || mobileFiltersOpen) && (
             <div className={styles.drawerHeader}>
               <h3 className={styles.drawerTitle}>
-                {mobileFormOpen ? 'Create Task' : 'Filter & Sort'}
+                {mobileFormOpen ? 'Create task' : 'Filter & sort'}
               </h3>
               <button
                 className={styles.drawerCloseButton}
                 onClick={closeMobilePanels}
                 aria-label="Close panel"
               >
-                ✕
+                <X size={16} aria-hidden="true" />
               </button>
             </div>
           )}
-          <div className={styles.formSection}>
-            {children}
+
+          {/* Accordion: Create task */}
+          <div className={`${styles.accordion} ${styles.formSection}`}>
+            <button
+              className={styles.accordionHeader}
+              onClick={() => setCreateTaskOpen(!createTaskOpen)}
+              aria-expanded={createTaskOpen}
+            >
+              <span className={styles.accordionTitle}>Create task</span>
+              <span className={styles.accordionIcon}>{createTaskOpen ? '▼' : '▶'}</span>
+            </button>
+            {createTaskOpen && (
+              <div className={styles.accordionContent}>
+                <TaskForm />
+              </div>
+            )}
           </div>
-          <div className={styles.filterSection}>
-            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-            <FilterControls
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              priorityFilter={priorityFilter}
-              setPriorityFilter={setPriorityFilter}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-            />
+
+          {/* Accordion: Search tasks */}
+          <div className={`${styles.accordion} ${styles.filterSection}`}>
+            <button
+              className={styles.accordionHeader}
+              onClick={() => setSearchOpen(!searchOpen)}
+              aria-expanded={searchOpen}
+            >
+              <span className={styles.accordionTitle}>Search tasks</span>
+              <span className={styles.accordionIcon}>{searchOpen ? '▼' : '▶'}</span>
+            </button>
+            {searchOpen && (
+              <div className={styles.accordionContent}>
+                <SearchBar
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  inputRef={searchInputRef}
+                  resultCount={searchQuery ? searchResults.length : undefined}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Accordion: Filters */}
+          <div className={`${styles.accordion} ${styles.filterSection}`}>
+            <button
+              className={styles.accordionHeader}
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              aria-expanded={filtersOpen}
+            >
+              <span className={styles.accordionTitle}>Filters</span>
+              <span className={styles.accordionIcon}>{filtersOpen ? '▼' : '▶'}</span>
+            </button>
+            {filtersOpen && (
+              <div className={styles.accordionContent}>
+                <FilterControls
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  priorityFilter={priorityFilter}
+                  setPriorityFilter={setPriorityFilter}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  isFiltered={isFiltered}
+                  resetFilters={resetFilters}
+                />
+              </div>
+            )}
           </div>
         </aside>
 
+        {/* Main canvas */}
         <main className={styles.mainCanvas}>
-          {/* Task count summary bar & Mobile controls */}
-          <div className={styles.canvasToolbar}>
+          {/* Stats bar */}
+          <StatsBar
+            tasks={tasks}
+            onFilterByStatus={setStatusFilter}
+            activeStatusFilter={statusFilter}
+          />
+
+          {/* Tasks section header */}
+          <div className={styles.tasksHeader}>
             <div className={styles.mobileActions}>
               <button
                 className={`${styles.mobileActionButton} ${mobileFormOpen ? styles.active : ''}`}
                 onClick={() => {
-                  setMobileFormOpen(!mobileFormOpen);
+                  setMobileFormOpen((v) => !v);
                   setMobileFiltersOpen(false);
                 }}
                 aria-label="Toggle task form"
+                aria-expanded={mobileFormOpen}
               >
-                {mobileFormOpen ? '✕ Close Form' : '＋ New Task'}
+                {mobileFormOpen
+                  ? <><X size={14} aria-hidden="true" /> Close</>
+                  : <><Plus size={14} aria-hidden="true" /> New Task</>
+                }
               </button>
               <button
                 className={`${styles.mobileActionButton} ${mobileFiltersOpen ? styles.active : ''}`}
                 onClick={() => {
-                  setMobileFiltersOpen(!mobileFiltersOpen);
+                  setMobileFiltersOpen((v) => !v);
                   setMobileFormOpen(false);
                 }}
                 aria-label="Toggle filters"
+                aria-expanded={mobileFiltersOpen}
               >
-                {mobileFiltersOpen ? '✕ Close Filters' : '🔍 Filter & Sort'}
+                {mobileFiltersOpen
+                  ? <><X size={14} aria-hidden="true" /> Close</>
+                  : <><Search size={14} aria-hidden="true" /> Filter</>
+                }
               </button>
             </div>
-            
-            <p className={styles.taskCount} id="task-count-summary">
-              {isFiltering
-                ? `Showing ${filteredCount} of ${totalCount} tasks`
-                : `${totalCount} task${totalCount !== 1 ? 's' : ''} total`}
-            </p>
+
+            <h2 className={styles.tasksTitle}>Tasks</h2>
+
+            <div className={styles.tasksHeaderRight}>
+              <p
+                className={styles.taskCount}
+                id="task-count-summary"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {showingFiltered
+                  ? `${filteredCount} of ${totalCount} task${totalCount !== 1 ? 's' : ''}`
+                  : `${totalCount} task${totalCount !== 1 ? 's' : ''} total`}
+              </p>
+              <div className={styles.sortWrapper}>
+                <SortAsc size={14} aria-hidden="true" className={styles.sortIcon} />
+                <label htmlFor="sort-inline" className={styles.sortLabel}>Sort by:</label>
+                <select
+                  id="sort-inline"
+                  className={styles.sortSelect}
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortByKey)}
+                  aria-label="Sort tasks"
+                >
+                  <option value="none">Default</option>
+                  <option value="dueDate">Due Date</option>
+                  <option value="priority">Priority</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div className={styles.canvasScrollContainer}>
+          {/* Task grid */}
+          <div className={styles.canvasScrollContainer} ref={scrollContainerRef}>
             <TaskList
               tasks={filteredTasks}
               loading={loading}
               onDeleteTask={handleDeleteTask}
               onUpdateTaskStatus={handleUpdateTaskStatus}
+              onEditTask={handleEditTask}
             />
           </div>
         </main>
