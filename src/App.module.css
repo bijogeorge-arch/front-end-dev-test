@@ -1,0 +1,11 @@
+/**
+ * App.module.css
+ *
+ * Top-level app scoped overrides.
+ * Global design tokens are defined in src/styles/variables.css.
+ */
+
+/* Ensures the root element fills the full viewport */
+.appRoot {
+  display: contents;
+}

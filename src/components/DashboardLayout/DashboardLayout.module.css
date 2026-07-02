@@ -1,0 +1,103 @@
+.layoutWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.dashboardContainer {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - var(--header-height));
+}
+
+.filterSidebar {
+  background-color: var(--color-background-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+}
+
+.filterPlaceholder {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.filterSubtext {
+  margin: var(--spacing-xs) 0 0 0;
+  font-size: var(--font-size-xs);
+}
+
+.mainCanvas {
+  background-color: var(--color-background-app);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvasToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background-surface);
+  flex-shrink: 0;
+}
+
+.taskCount {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.canvasScrollContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+}
+
+/* Tablet & Mobile layout adjustments */
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    grid-template-columns: 240px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - var(--header-height));
+  }
+
+  .filterSidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-md);
+    overflow-y: visible;
+  }
+
+  .filterPlaceholder {
+    min-height: 80px;
+    padding: var(--spacing-sm);
+  }
+
+  .canvasScrollContainer {
+    padding: var(--spacing-md);
+  }
+}

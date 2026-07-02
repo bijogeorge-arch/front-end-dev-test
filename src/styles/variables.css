@@ -1,0 +1,115 @@
+/* Design tokens and variables */
+:root {
+  /* Colors - Light Theme (Default) */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #475569;
+  --color-secondary-hover: #334155;
+  
+  --color-background-app: #f8fafc;
+  --color-background-surface: #ffffff;
+  
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+  
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  --color-text-on-primary: #ffffff;
+  --color-error: #dc2626;
+  
+  /* Semantic Status Colors (Light backgrounds & matching text) */
+  --color-status-todo-bg: #eff6ff;
+  --color-status-todo-text: #1e40af;
+  --color-status-todo-border: #bfdbfe;
+
+  --color-status-progress-bg: #fef3c7;
+  --color-status-progress-text: #92400e;
+  --color-status-progress-border: #fde68a;
+
+  --color-status-completed-bg: #f0fdf4;
+  --color-status-completed-text: #166534;
+  --color-status-completed-border: #bbf7d0;
+  
+  /* Spacing Grid (8px base) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 28px;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Layout and Shell */
+  --header-height: 70px;
+  --sidebar-width: 280px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+/* Dark Theme Toggle Overrides */
+[data-theme='dark'] {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-secondary: #94a3b8;
+  --color-secondary-hover: #cbd5e1;
+  
+  --color-background-app: #0f172a;
+  --color-background-surface: #1e293b;
+  
+  --color-border: #334155;
+  --color-border-hover: #475569;
+  
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-on-primary: #0f172a;
+  --color-error: #ef4444;
+
+  --color-status-todo-bg: rgba(30, 64, 175, 0.2);
+  --color-status-todo-text: #93c5fd;
+  --color-status-todo-border: rgba(30, 64, 175, 0.4);
+
+  --color-status-progress-bg: rgba(146, 64, 14, 0.2);
+  --color-status-progress-text: #fde68a;
+  --color-status-progress-border: rgba(146, 64, 14, 0.4);
+
+  --color-status-completed-bg: rgba(22, 101, 52, 0.2);
+  --color-status-completed-text: #86efac;
+  --color-status-completed-border: rgba(22, 101, 52, 0.4);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Base Styles setup */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--color-background-app);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

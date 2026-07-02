@@ -1,0 +1,53 @@
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  border: 2px dashed var(--color-error);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-background-surface);
+  text-align: center;
+  gap: var(--spacing-md);
+}
+
+.errorIcon {
+  font-size: 48px;
+}
+
+.errorTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.retryButton {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.retryButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.retryButton:active {
+  transform: scale(0.98);
+}

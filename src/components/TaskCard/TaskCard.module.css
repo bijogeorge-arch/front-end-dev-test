@@ -1,0 +1,272 @@
+.card {
+  background-color: var(--color-background-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 240px;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.priorityBadge {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.priorityHigh {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.priorityMedium {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.priorityLow {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  font-size: 14px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.deleteButton:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteButton:active {
+  transform: scale(0.98);
+}
+
+/* Inline delete confirmation */
+.deleteConfirm {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.deleteConfirmText {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-error);
+}
+
+.confirmButton {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.confirmYes {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.confirmYes:hover {
+  background-color: #fca5a5;
+}
+
+.confirmNo {
+  background-color: var(--color-background-app);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.confirmNo:hover {
+  background-color: var(--color-border);
+}
+
+.noDescription {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cardBody {
+  margin-bottom: var(--spacing-md);
+  flex: 1;
+  min-width: 0; /* allows text overflow ellipsis to work correctly in flex layout */
+}
+
+.title {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  /* Ellipsis rules */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  /* Line clamp ellipsis for descriptions */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metaInfo {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+}
+
+.metaLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.metaValue {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-sm);
+  border-top: 1px dashed var(--color-border);
+}
+
+.badgeContainer {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: 4px var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+}
+
+.badgePending {
+  background-color: var(--color-status-todo-bg);
+  color: var(--color-status-todo-text);
+  border-color: var(--color-status-todo-border);
+}
+
+.badgeInProgress {
+  background-color: var(--color-status-progress-bg);
+  color: var(--color-status-progress-text);
+  border-color: var(--color-status-progress-border);
+}
+
+.badgeCompleted {
+  background-color: var(--color-status-completed-bg);
+  color: var(--color-status-completed-text);
+  border-color: var(--color-status-completed-border);
+}
+
+.badgeRejected {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #fee2e2;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.actionButton {
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  padding: 4px var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.actionButton:active {
+  transform: scale(0.98);
+}
+
+.progressButton {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+
+.progressButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.rejectButton {
+  background-color: var(--color-background-surface);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.rejectButton:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}

@@ -1,0 +1,95 @@
+.header {
+  height: var(--header-height);
+  background-color: var(--color-background-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.logoIcon {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Theme toggle button */
+.themeToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: var(--color-background-app);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  min-width: 90px;
+  justify-content: center;
+}
+
+.themeToggle:hover {
+  background-color: var(--color-border);
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+}
+
+.themeToggle:active {
+  transform: scale(0.97);
+}
+
+.themeIcon {
+  font-size: var(--font-size-md);
+  line-height: 1;
+}
+
+.themeLabel {
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 var(--spacing-md);
+  }
+
+  .title {
+    font-size: var(--font-size-md);
+  }
+
+  .themeLabel {
+    display: none; /* Show only the icon on mobile */
+  }
+
+  .themeToggle {
+    min-width: auto;
+    padding: var(--spacing-xs);
+  }
+}
