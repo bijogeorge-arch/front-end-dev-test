@@ -18,8 +18,30 @@
 .filterSidebar {
   background-color: var(--color-background-surface);
   border-right: 1px solid var(--color-border);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-md);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.filterSidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filterSidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filterSidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.filterSidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
 
 .drawerHeader {
