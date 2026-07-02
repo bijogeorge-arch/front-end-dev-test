@@ -29,9 +29,9 @@
 
 .searchInput {
   width: 100%;
-  height: 48px;
+  height: 44px;
   padding: 0 var(--spacing-xl) 0 calc(var(--spacing-md) * 2.5);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-sm);
   font-family: var(--font-family);
   background-color: var(--color-background-surface);
   color: var(--color-text-primary);
@@ -39,6 +39,8 @@
   border-radius: var(--border-radius-md);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   outline: none;
+  /* Prevent iOS zoom on focus (font-size must be ≥16px on iOS) */
+  font-size: max(16px, var(--font-size-sm));
 }
 
 .searchInput:focus {
@@ -86,4 +88,16 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   min-height: 1.4em; /* prevents layout shift when text appears/disappears */
+}
+
+/* ── 360px — Ultra-small phones ───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .searchInput {
+    /* Slightly tighten left padding on very narrow screens */
+    padding-left: calc(var(--spacing-md) * 2.2);
+  }
+
+  .searchIcon {
+    left: var(--spacing-sm);
+  }
 }

@@ -1,12 +1,17 @@
 /* Stats bar: horizontal scrollable row of clickable stat cards */
 .statsBar {
   display: flex;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
   background-color: var(--color-background-app);
   overflow-x: auto;
   flex-shrink: 0;
   scrollbar-width: none;
+  /* Snap for smooth mobile swiping */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* Prevent cards from shrinking below their min-width */
+  align-items: stretch;
 }
 
 .statsBar::-webkit-scrollbar {
@@ -17,13 +22,13 @@
 .statCard {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--color-border);
   cursor: pointer;
-  min-width: 140px;
-  flex: 1;
+  /* Fixed min-width so cards never compress — bar scrolls instead */
+  min-width: 130px;
   flex-shrink: 0;
   font-family: var(--font-family);
   transition: transform var(--transition-fast),
@@ -33,6 +38,8 @@
   background-color: var(--color-stat-card-background);
   color: var(--color-text-primary);
   text-align: left;
+  /* Snap point for mobile scroll */
+  scroll-snap-align: start;
 }
 
 .statCard:hover {
@@ -68,6 +75,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .statCount {
@@ -158,7 +166,7 @@
 [data-theme='dark'] .cardCompleted { border-color: rgba(16, 185, 129, 0.3); }
 [data-theme='dark'] .cardRejected  { border-color: rgba(239, 68, 68, 0.3); }
 
-/* ── Responsive ───────────────────────────────────────────────────────────── */
+/* ── 900px — Slightly smaller cards ─────────────────────────────────────── */
 @media (max-width: 900px) {
   .statCard {
     min-width: 110px;
@@ -167,11 +175,83 @@
   }
 
   .iconWrapper {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
 
   .statCount {
     font-size: var(--font-size-lg);
+  }
+}
+
+/* ── 600px — Compact: stack icon + count + label vertically ──────────────── */
+@media (max-width: 600px) {
+  .statsBar {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .statCard {
+    /* Vertical compact layout */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 72px;
+    padding: var(--spacing-xs) var(--spacing-xs);
+    gap: 4px;
+    border-radius: var(--border-radius-md);
+  }
+
+  .statBody {
+    align-items: center;
+  }
+
+  .iconWrapper {
+    width: 30px;
+    height: 30px;
+  }
+
+  .statCount {
+    font-size: var(--font-size-md);
+    line-height: 1;
+  }
+
+  .statLabel {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+}
+
+/* ── 400px — iPhone SE & similar: icon + count only, label hidden ─────────── */
+@media (max-width: 400px) {
+  .statsBar {
+    padding: var(--spacing-xs) var(--spacing-xs);
+    gap: 6px;
+  }
+
+  .statCard {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    padding: 6px 4px;
+    gap: 3px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .iconWrapper {
+    width: 26px;
+    height: 26px;
+  }
+
+  .statCount {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .statLabel {
+    font-size: 9px;
+    letter-spacing: 0;
   }
 }

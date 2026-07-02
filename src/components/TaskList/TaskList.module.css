@@ -1,7 +1,9 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-  gap: 24px;
+  /* min() ensures we never go wider than available space.
+     320px is the minimum column width before it becomes single-column. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--spacing-lg);
   width: 100%;
 }
 
@@ -74,4 +76,27 @@
   color: var(--color-text-muted);
   max-width: 300px;
   line-height: 1.5;
+}
+
+/* ── 768px — Force single column on mobile ───────────────────────────────── */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+}
+
+/* ── 480px — Reduce empty-state padding ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .emptyContainer {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+
+  .loadingContainer {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+
+  .emptySubtitle {
+    max-width: 260px;
+  }
 }

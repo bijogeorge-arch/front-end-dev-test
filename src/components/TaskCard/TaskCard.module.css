@@ -52,12 +52,14 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  gap: var(--spacing-xs);
 }
 
 .headerActions {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  flex-shrink: 0;
 }
 
 /* ── Priority Badges ──────────────────────────────────────────────────────── */
@@ -71,6 +73,7 @@
   padding: 3px 10px;
   border-radius: var(--border-radius-full);
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .priorityHigh {
@@ -107,6 +110,9 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
+  /* Touch-friendly minimum */
+  min-width: 32px;
+  min-height: 32px;
   transition: background-color var(--transition-fast),
     color var(--transition-fast),
     transform var(--transition-fast);
@@ -133,6 +139,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   animation: fadeIn 0.15s ease;
+  flex-wrap: wrap;
 }
 
 @keyframes fadeIn {
@@ -154,6 +161,7 @@
   cursor: pointer;
   border: 1px solid transparent;
   transition: all var(--transition-fast);
+  min-height: 28px;
 }
 
 .confirmYes {
@@ -186,7 +194,8 @@
 
 .title {
   margin: 0 0 4px 0;
-  font-size: var(--font-size-card-title);
+  /* Fluid font: scales from 16px on small phones to 22px on desktop */
+  font-size: clamp(16px, 4vw, var(--font-size-card-title));
   font-weight: var(--font-weight-card-title);
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -227,6 +236,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: var(--font-size-xs);
+  gap: var(--spacing-xs);
 }
 
 .metaLabel {
@@ -260,6 +270,7 @@
   gap: var(--spacing-xs);
   padding-top: var(--spacing-sm);
   border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
 }
 
 .badgeContainer {
@@ -278,6 +289,7 @@
   border: 1px solid var(--color-border);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  white-space: nowrap;
 }
 
 .statusIconCircle {
@@ -316,6 +328,7 @@
 .actionGroup {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .actionButton {
@@ -331,6 +344,8 @@
   transition: all var(--transition-fast);
   font-family: var(--font-family);
   white-space: nowrap;
+  /* Touch target */
+  min-height: 36px;
 }
 
 .actionButton:active {
@@ -378,11 +393,38 @@
   color: #B91C1C;
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 400px) {
+/* ── 768px — Tablet / narrow-canvas breakpoint ───────────────────────────── */
+@media (max-width: 768px) {
   .card {
-    min-height: auto;
+    padding: var(--spacing-md);
+  }
+
+  /* Remove min-height so card shrinks naturally on mobile */
+  .card {
+    min-height: unset;
+  }
+
+  .overdueBanner {
+    padding: 4px var(--spacing-md);
+    margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-sm) calc(-1 * var(--spacing-md));
+  }
+}
+
+/* ── 480px — Small phones ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .card {
     padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+  }
+
+  .overdueBanner {
+    padding: 4px var(--spacing-sm);
+    margin: calc(-1 * var(--spacing-sm)) calc(-1 * var(--spacing-sm)) var(--spacing-sm) calc(-1 * var(--spacing-sm));
+  }
+
+  .cardBody {
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
   }
 
   .cardFooter {
@@ -407,8 +449,24 @@
     width: 100%;
   }
 
-  .badge {
+  .statusBadge {
     width: 100%;
-    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* ── 360px — Ultra-small phones ───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .card {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .priorityBadge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .actionButton {
+    padding: 5px var(--spacing-xs);
   }
 }

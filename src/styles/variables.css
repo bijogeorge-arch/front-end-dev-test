@@ -116,8 +116,9 @@
   --font-weight-bold: 700;
 
   /* ── Layout Shell ─────────────────────────────────────────────────────── */
-  --header-height: 64px;
+  --header-height: 80px;
   --sidebar-width: 320px;
+  --sidebar-width-tablet: 260px;
 
   /* ── Shape ────────────────────────────────────────────────────────────── */
   --border-radius-sm: 6px;

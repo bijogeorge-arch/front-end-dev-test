@@ -1,8 +1,10 @@
+/* ── Layout Shell ─────────────────────────────────────────────────────────── */
 .layoutWrapper {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -35,6 +37,8 @@
   background-color: var(--color-background-surface);
   overflow: hidden;
   transition: border-color var(--transition-fast);
+  /* On mobile the drawer scrolls — don't let the accordion clip the submit button */
+  flex-shrink: 0;
 }
 
 .accordion:hover {
@@ -53,6 +57,8 @@
   outline: none;
   font-family: var(--font-family);
   transition: background-color var(--transition-fast);
+  /* Touch target: min 44px height */
+  min-height: 44px;
 }
 
 .accordionHeader:hover {
@@ -108,6 +114,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* prevent flex blowout */
 }
 
 /* ── Tasks Header (title + count + sort) ─────────────────────────────────── */
@@ -120,6 +127,7 @@
   background-color: var(--color-background-surface);
   flex-shrink: 0;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .tasksTitle {
@@ -128,6 +136,10 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tasksHeaderRight {
@@ -176,6 +188,8 @@
   outline: none;
   cursor: pointer;
   padding: 0;
+  /* Ensure select is readable on all platforms */
+  max-width: 100px;
 }
 
 .canvasScrollContainer {
@@ -226,13 +240,29 @@
   to { opacity: 1; }
 }
 
-/* ── Tablet & Mobile ─────────────────────────────────────────────────────── */
-@media (max-width: 1024px) {
+/* ── 1280px — Tighten sidebar slightly ───────────────────────────────────── */
+@media (max-width: 1280px) {
   .dashboardContainer {
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: var(--sidebar-width-tablet) 1fr;
   }
 }
 
+/* ── 1024px — Compact sidebar ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .tasksHeader {
+    padding: var(--spacing-md);
+  }
+
+  .canvasScrollContainer {
+    padding: var(--spacing-md);
+  }
+}
+
+/* ── 768px — Mobile: Slide-in drawer, single column layout ──────────────── */
 @media (max-width: 768px) {
   .dashboardContainer {
     grid-template-columns: 1fr;
@@ -244,7 +274,7 @@
     top: 0;
     left: 0;
     width: 320px;
-    max-width: 85vw;
+    max-width: 88vw;
     height: 100%;
     z-index: 30;
     border-right: 1px solid var(--color-border);
@@ -253,10 +283,14 @@
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     background-color: var(--color-background-surface);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
+    /* critical: allow content to scroll within the drawer */
     overflow-y: auto;
+    overflow-x: hidden;
+    /* iOS safe area so content clears the home indicator */
+    padding-bottom: max(var(--spacing-lg), env(safe-area-inset-bottom));
   }
 
   .drawerHeader {
@@ -266,6 +300,7 @@
     padding-bottom: var(--spacing-sm);
     border-bottom: 1px solid var(--color-border);
     margin-bottom: var(--spacing-xs);
+    /* Don't let the header shrink — it must always stay visible */
     flex-shrink: 0;
   }
 
@@ -287,8 +322,9 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
     transition: background-color var(--transition-fast), color var(--transition-fast);
   }
 
@@ -307,6 +343,11 @@
   .filterSection {
     display: none;
     width: 100%;
+    /* sections expand to fill available space and scroll if needed */
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .showForm .formSection {
@@ -324,6 +365,7 @@
   .tasksHeader {
     padding: var(--spacing-sm) var(--spacing-md);
     flex-wrap: wrap;
+    gap: var(--spacing-sm);
   }
 
   .mobileActions {
@@ -340,7 +382,7 @@
     font-family: var(--font-family);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: 0 var(--spacing-sm);
     border-radius: var(--border-radius-md);
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -348,6 +390,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    /* Touch target */
+    min-height: 44px;
+    flex: 1;
+    justify-content: center;
   }
 
   .mobileActionButton:hover,
@@ -359,5 +405,75 @@
 
   .sortLabel {
     display: none;
+  }
+
+  .tasksTitle {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ── 480px — Small phones ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .canvasScrollContainer {
+    padding: var(--spacing-sm);
+  }
+
+  .tasksHeader {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .tasksHeaderRight {
+    gap: var(--spacing-sm);
+  }
+
+  .taskCount {
+    display: none;
+  }
+
+  .sortSelect {
+    max-width: 80px;
+  }
+}
+
+/* ── 375px — iPhone SE: override accordion clipping inside the drawer ────── */
+@media (max-width: 375px) {
+  /* The drawer itself scrolls, so each accordion must NOT clip its content */
+  .accordion {
+    overflow: visible;
+  }
+
+  .accordionContent {
+    /* Give the form room to breathe and be fully visible before scrolling */
+    overflow: visible;
+  }
+
+  .filterSidebar {
+    width: 100vw;
+    max-width: 100vw;
+    padding: var(--spacing-sm);
+    padding-bottom: max(var(--spacing-xl), env(safe-area-inset-bottom));
+  }
+
+  .mobileActionButton {
+    font-size: 12px;
+    padding: 0 var(--spacing-xs);
+    gap: 3px;
+  }
+}
+
+/* ── 360px — Ultra-small phones ───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .canvasScrollContainer {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .mobileActionButton {
+    font-size: 11px;
+    padding: 0 var(--spacing-xs);
+    gap: 3px;
+  }
+
+  .sortWrapper {
+    padding: 4px var(--spacing-xs);
   }
 }

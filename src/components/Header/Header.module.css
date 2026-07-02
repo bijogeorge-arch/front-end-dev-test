@@ -1,5 +1,5 @@
 .header {
-  height: 80px;
+  height: var(--header-height);
   background-color: var(--color-background-surface);
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -16,6 +16,8 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .logoIconWrapper {
@@ -41,11 +43,14 @@
   margin: 0;
   letter-spacing: -0.3px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .titleGroup {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .systemStatus {
@@ -62,6 +67,7 @@
   border-radius: 50%;
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .statusIndicatorPulse::after {
@@ -85,6 +91,7 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .welcomeSection {
@@ -92,19 +99,28 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  /* Allow shrink so it doesn't push other elements off-screen */
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--spacing-sm);
 }
 
 .welcomeHeading {
-  font-size: var(--font-size-dashboard-title);
+  font-size: clamp(18px, 2.5vw, var(--font-size-dashboard-title));
   font-weight: var(--font-weight-dashboard-title);
   color: var(--color-text-primary);
   line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .timestampText {
   font-size: var(--font-size-helper);
   color: var(--color-text-muted);
   margin-top: 2px;
+  white-space: nowrap;
 }
 
 /* ── Actions Container ────────────────────────────────────────────────────── */
@@ -112,6 +128,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 /* Icon buttons (theme toggle + bell) */
@@ -177,6 +194,8 @@
   transition: background-color var(--transition-fast),
     border-color var(--transition-fast);
   color: var(--color-text-primary);
+  /* Ensure touch target */
+  min-height: 44px;
 }
 
 .profileButton:hover {
@@ -252,7 +271,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
-  padding: 8px var(--spacing-sm);
+  padding: 10px var(--spacing-sm);
   background: none;
   border: none;
   border-radius: var(--border-radius-sm);
@@ -262,6 +281,8 @@
   cursor: pointer;
   text-align: left;
   transition: background-color var(--transition-fast), color var(--transition-fast);
+  /* Touch-friendly padding */
+  min-height: 44px;
 }
 
 .dropdownItem:hover {
@@ -284,14 +305,26 @@
   margin: 4px 0;
 }
 
-/* ── Responsive ───────────────────────────────────────────────────────────── */
+/* ── 1024px — Compact header ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .welcomeHeading {
+    font-size: clamp(16px, 2vw, 24px);
+  }
+}
+
+/* ── 768px — Mobile header ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .header {
     padding: 0 var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .title {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .welcomeSection {
+    display: none;
   }
 
   .profileInfo {
@@ -301,9 +334,54 @@
   .profileButton {
     padding: 6px;
     gap: 6px;
+    min-height: 40px;
   }
 
   .chevron {
+    display: none;
+  }
+
+  .statusText {
+    display: none;
+  }
+}
+
+/* ── 480px — Small phones ─────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .logoIconWrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .iconButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .actionsContainer {
+    gap: var(--spacing-xs);
+  }
+}
+
+/* ── 360px — Ultra-small phones ───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .title {
+    font-size: var(--font-size-xs);
+    max-width: 100px;
+  }
+
+  .logoIconWrapper {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Hide notification button on tiny screens to save space */
+  .notificationBtn {
     display: none;
   }
 }

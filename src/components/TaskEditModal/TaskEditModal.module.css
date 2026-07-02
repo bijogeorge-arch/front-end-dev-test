@@ -66,11 +66,12 @@
   cursor: pointer;
   padding: var(--spacing-xs);
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
@@ -116,6 +117,8 @@
   outline: none;
   width: 100%;
   box-sizing: border-box;
+  /* Touch target: min 44px */
+  min-height: 44px;
   transition: border-color var(--transition-fast),
     box-shadow var(--transition-fast);
 }
@@ -145,6 +148,7 @@
   min-height: 90px;
 }
 
+/* Side-by-side row — stacks at 480px (sooner than before, matching modal width) */
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -158,6 +162,7 @@
   gap: var(--spacing-sm);
   padding-top: var(--spacing-sm);
   border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
 }
 
 .cancelButton {
@@ -170,6 +175,7 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius-sm);
   cursor: pointer;
+  min-height: 44px;
   transition: all var(--transition-fast);
 }
 
@@ -188,6 +194,7 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--border-radius-sm);
   cursor: pointer;
+  min-height: 44px;
   transition: background-color var(--transition-fast),
     transform var(--transition-fast);
 }
@@ -205,7 +212,7 @@
   cursor: not-allowed;
 }
 
-/* Mobile full-screen */
+/* ── 600px — Mobile sheet ─────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .overlay {
     padding: 0;
@@ -218,7 +225,36 @@
     max-height: 92vh;
   }
 
+  .form {
+    padding: var(--spacing-md);
+  }
+
+  .modalHeader {
+    padding: var(--spacing-md);
+  }
+}
+
+/* ── 480px — Stack side-by-side rows ─────────────────────────────────────── */
+@media (max-width: 480px) {
   .row {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── 360px — Ultra-small phones ───────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .form {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .formFooter {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+    justify-content: center;
   }
 }
