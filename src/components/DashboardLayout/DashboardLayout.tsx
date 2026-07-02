@@ -27,12 +27,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, childr
 
   // Simulated loading flag for 500ms on mount — demonstrates useEffect + cleanup
   const [loading, setLoading] = useState(true);
+  const [mobileFormOpen, setMobileFormOpen] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 500);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Close mobile panels when ESC is pressed or on resize
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileFormOpen(false);
+        setMobileFiltersOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // useCallback — stable references for store actions passed to children
@@ -51,26 +65,79 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header, childr
   const filteredCount = filteredTasks.length;
   const isFiltering = filteredCount !== totalCount;
 
+  const closeMobilePanels = () => {
+    setMobileFormOpen(false);
+    setMobileFiltersOpen(false);
+  };
+
+  const isAnyPanelOpen = mobileFormOpen || mobileFiltersOpen;
+
   return (
     <div className={styles.layoutWrapper}>
       {header}
       <div className={styles.dashboardContainer}>
-        <aside className={styles.filterSidebar}>
-          {children}
-          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-          <FilterControls
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            priorityFilter={priorityFilter}
-            setPriorityFilter={setPriorityFilter}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-          />
+        {/* Backdrop for mobile drawer */}
+        {isAnyPanelOpen && (
+          <div className={styles.backdrop} onClick={closeMobilePanels} />
+        )}
+
+        <aside className={`${styles.filterSidebar} ${mobileFormOpen ? styles.showForm : ''} ${mobileFiltersOpen ? styles.showFilters : ''}`}>
+          {(mobileFormOpen || mobileFiltersOpen) && (
+            <div className={styles.drawerHeader}>
+              <h3 className={styles.drawerTitle}>
+                {mobileFormOpen ? 'Create Task' : 'Filter & Sort'}
+              </h3>
+              <button
+                className={styles.drawerCloseButton}
+                onClick={closeMobilePanels}
+                aria-label="Close panel"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          <div className={styles.formSection}>
+            {children}
+          </div>
+          <div className={styles.filterSection}>
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <FilterControls
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              priorityFilter={priorityFilter}
+              setPriorityFilter={setPriorityFilter}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+            />
+          </div>
         </aside>
 
         <main className={styles.mainCanvas}>
-          {/* Task count summary bar */}
+          {/* Task count summary bar & Mobile controls */}
           <div className={styles.canvasToolbar}>
+            <div className={styles.mobileActions}>
+              <button
+                className={`${styles.mobileActionButton} ${mobileFormOpen ? styles.active : ''}`}
+                onClick={() => {
+                  setMobileFormOpen(!mobileFormOpen);
+                  setMobileFiltersOpen(false);
+                }}
+                aria-label="Toggle task form"
+              >
+                {mobileFormOpen ? '✕ Close Form' : '＋ New Task'}
+              </button>
+              <button
+                className={`${styles.mobileActionButton} ${mobileFiltersOpen ? styles.active : ''}`}
+                onClick={() => {
+                  setMobileFiltersOpen(!mobileFiltersOpen);
+                  setMobileFormOpen(false);
+                }}
+                aria-label="Toggle filters"
+              >
+                {mobileFiltersOpen ? '✕ Close Filters' : '🔍 Filter & Sort'}
+              </button>
+            </div>
+            
             <p className={styles.taskCount} id="task-count-summary">
               {isFiltering
                 ? `Showing ${filteredCount} of ${totalCount} tasks`

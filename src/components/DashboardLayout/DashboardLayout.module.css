@@ -12,6 +12,7 @@
   flex: 1;
   overflow: hidden;
   height: calc(100vh - var(--header-height));
+  position: relative;
 }
 
 .filterSidebar {
@@ -19,6 +20,15 @@
   border-right: 1px solid var(--color-border);
   padding: var(--spacing-lg);
   overflow-y: auto;
+}
+
+.drawerHeader {
+  display: none;
+}
+
+.formSection,
+.filterSection {
+  display: block;
 }
 
 .filterPlaceholder {
@@ -71,6 +81,29 @@
   padding: var(--spacing-lg);
 }
 
+/* Mobile Actions Toolbar */
+.mobileActions {
+  display: none;
+}
+
+/* Backdrop for Mobile Drawer */
+.backdrop {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - var(--header-height));
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Tablet & Mobile layout adjustments */
 @media (max-width: 1024px) {
   .dashboardContainer {
@@ -81,15 +114,85 @@
 @media (max-width: 768px) {
   .dashboardContainer {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
     height: calc(100vh - var(--header-height));
   }
 
   .filterSidebar {
-    border-right: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 320px;
+    max-width: 85vw;
+    height: 100%;
+    z-index: 30;
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    background-color: var(--color-background-surface);
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+  }
+
+  .drawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--spacing-sm);
     border-bottom: 1px solid var(--color-border);
-    padding: var(--spacing-md);
-    overflow-y: visible;
+    margin-bottom: var(--spacing-xs);
+    flex-shrink: 0;
+  }
+
+  .drawerTitle {
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+  }
+
+  .drawerCloseButton {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .drawerCloseButton:hover {
+    background-color: var(--color-background-app);
+    color: var(--color-text-primary);
+  }
+
+  .showForm.filterSidebar,
+  .showFilters.filterSidebar {
+    transform: translateX(0);
+  }
+
+  /* Toggle display of sections on mobile drawer */
+  .formSection,
+  .filterSection {
+    display: none;
+    width: 100%;
+  }
+
+  .showForm .formSection {
+    display: block;
+  }
+
+  .showFilters .filterSection {
+    display: block;
   }
 
   .filterPlaceholder {
@@ -99,5 +202,37 @@
 
   .canvasScrollContainer {
     padding: var(--spacing-md);
+  }
+
+  .canvasToolbar {
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .mobileActions {
+    display: flex;
+    gap: var(--spacing-xs);
+  }
+
+  .mobileActionButton {
+    background-color: var(--color-background-app);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .mobileActionButton:hover,
+  .mobileActionButton.active {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+    border-color: var(--color-primary);
   }
 }
