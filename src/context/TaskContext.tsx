@@ -52,6 +52,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const updateTaskStatus = useTaskStore((state) => state.updateTaskStatus);
   const updateTask = useTaskStore((state) => state.updateTask);
+  const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const clearAllTasks = useTaskStore((state) => state.clearAllTasks);
 
   /**
@@ -67,9 +68,10 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       deleteTask,
       updateTaskStatus,
       updateTask,
+      reorderTasks,
       clearAllTasks,
     }),
-    [tasks, initializeTasks, addTask, deleteTask, updateTaskStatus, updateTask, clearAllTasks]
+    [tasks, initializeTasks, addTask, deleteTask, updateTaskStatus, updateTask, reorderTasks, clearAllTasks]
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

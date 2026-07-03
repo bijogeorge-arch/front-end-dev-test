@@ -67,6 +67,15 @@ export interface TaskState {
   updateTask: (id: number, updates: Partial<Omit<Task, "id" | "createdAt">>) => void;
 
   /**
+   * Moves a task from one index position to another within the tasks array.
+   * Used by the drag-and-drop handler to persist the user-defined custom order.
+   *
+   * @param fromIndex - The current index of the task being dragged.
+   * @param toIndex   - The destination index where the task should be dropped.
+   */
+  reorderTasks: (fromIndex: number, toIndex: number) => void;
+
+  /**
    * Wipes all tasks from the store.
    * Intended only for testing or manual data-reset workflows.
    */
@@ -148,6 +157,14 @@ export const useTaskStore = create<TaskState>()(
             task.id === id ? { ...task, ...updates } : task
           ),
         })),
+
+      reorderTasks: (fromIndex, toIndex) =>
+        set((state) => {
+          const reordered = [...state.tasks];
+          const [moved] = reordered.splice(fromIndex, 1);
+          reordered.splice(toIndex, 0, moved);
+          return { tasks: reordered };
+        }),
 
       clearAllTasks: () => set({ tasks: [] }),
     }),

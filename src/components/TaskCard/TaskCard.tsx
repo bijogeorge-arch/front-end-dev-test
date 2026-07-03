@@ -41,21 +41,29 @@ const isOverdue = (task: Task): boolean => {
 
 // ─── Switch-case: Status Badge ───────────────────────────────────────────────
 const renderStatusBadge = (taskStatus: TaskStatus) => {
-  let Icon = Clock;
-  let statusClass = styles.badgePending;
-  
-  if (taskStatus === "Pending") {
-    Icon = Clock;
-    statusClass = styles.badgePending;
-  } else if (taskStatus === "In Progress") {
-    Icon = Play;
-    statusClass = styles.badgeInProgress;
-  } else if (taskStatus === "Completed") {
-    Icon = Check;
-    statusClass = styles.badgeCompleted;
-  } else if (taskStatus === "Rejected") {
-    Icon = X;
-    statusClass = styles.badgeRejected;
+  let Icon: React.ElementType;
+  let statusClass: string;
+
+  switch (taskStatus) {
+    case "Pending":
+      Icon = Clock;
+      statusClass = styles.badgePending;
+      break;
+    case "In Progress":
+      Icon = Play;
+      statusClass = styles.badgeInProgress;
+      break;
+    case "Completed":
+      Icon = Check;
+      statusClass = styles.badgeCompleted;
+      break;
+    case "Rejected":
+      Icon = X;
+      statusClass = styles.badgeRejected;
+      break;
+    default:
+      Icon = Clock;
+      statusClass = styles.badgePending;
   }
 
   return (

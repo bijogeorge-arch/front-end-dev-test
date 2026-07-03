@@ -4,12 +4,14 @@ import { Task, SortByKey } from '../../types/task';
 import { useTaskContext } from '../../context/TaskContext';
 import { useSearch } from '../../hooks/useSearch';
 import { useTaskFilters } from '../../hooks/useTaskFilters';
+import { usePagination } from '../../hooks/usePagination';
 import { SearchBar } from '../SearchBar/SearchBar';
 import { FilterControls } from '../Filter/FilterControls';
 import { TaskList } from '../TaskList/TaskList';
 import { StatsBar } from '../StatsBar/StatsBar';
 import { TaskEditModal } from '../TaskEditModal/TaskEditModal';
 import { TaskForm } from '../TaskForm/TaskForm';
+import { Pagination } from '../Pagination/Pagination';
 import { X, Plus, Search, SortAsc } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -34,7 +36,7 @@ interface DashboardLayoutProps {
  */
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header }) => {
   // useContext — task state and actions come from TaskContext (React Context API)
-  const { tasks, deleteTask, updateTaskStatus, initializeTasks } = useTaskContext();
+  const { tasks, deleteTask, updateTaskStatus, initializeTasks, reorderTasks } = useTaskContext();
 
   // Seed mock data on first load (no-op if tasks already exist in localStorage)
   useEffect(() => {
@@ -57,6 +59,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header }) => {
     isFiltered,
     resetFilters,
   } = useTaskFilters(searchResults); // ← receives search-filtered tasks, not raw tasks
+
+  // ── Pagination (usePagination hook) ───────────────────────────────────────
+  // 6 tasks per page; auto-resets to page 1 when filteredTasks changes.
+  const PAGE_SIZE = 6;
+  const {
+    currentItems: pagedTasks,
+    currentPage,
+    totalPages,
+    hasPrevPage,
+    hasNextPage,
+    startItem,
+    endItem,
+    totalItems,
+    goToPage,
+    nextPage,
+    prevPage,
+  } = usePagination(filteredTasks, PAGE_SIZE);
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
@@ -122,6 +141,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header }) => {
     setMobileFormOpen(false);
     setMobileFiltersOpen(false);
   }, []);
+
+  /**
+   * Drag-and-drop reorder handler.
+   * `TaskList` gives us the task IDs of the dragged card and the drop target.
+   * We map those IDs to their current indices in the full `tasks` array so
+   * `reorderTasks(fromIndex, toIndex)` can perform the splice.
+   */
+  const handleReorder = useCallback(
+    (draggedId: number, targetId: number) => {
+      const fromIndex = tasks.findIndex((t) => t.id === draggedId);
+      const toIndex = tasks.findIndex((t) => t.id === targetId);
+      if (fromIndex !== -1 && toIndex !== -1) {
+        reorderTasks(fromIndex, toIndex);
+      }
+    },
+    [tasks, reorderTasks]
+  );
 
   // ── Derived display values ────────────────────────────────────────────────
   const totalCount = tasks.length;
@@ -311,11 +347,25 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ header }) => {
           {/* Task grid */}
           <div className={styles.canvasScrollContainer} ref={scrollContainerRef}>
             <TaskList
-              tasks={filteredTasks}
+              tasks={pagedTasks}
               loading={loading}
               onDeleteTask={handleDeleteTask}
               onUpdateTaskStatus={handleUpdateTaskStatus}
               onEditTask={handleEditTask}
+              onReorder={handleReorder}
+            />
+            {/* Pagination control */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hasPrevPage={hasPrevPage}
+              hasNextPage={hasNextPage}
+              startItem={startItem}
+              endItem={endItem}
+              totalItems={totalItems}
+              onPrev={prevPage}
+              onNext={nextPage}
+              onGoToPage={goToPage}
             />
           </div>
         </main>
