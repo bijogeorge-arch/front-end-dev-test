@@ -310,10 +310,13 @@ The only "smart" component in the tree. Wires all custom hooks together and mana
 | `useTaskContext()` | `useContext` — task state and actions |
 | `useSearch(tasks)` | Debounced search pipeline |
 | `useTaskFilters(searchResults)` | Filter and sort pipeline |
-| `useState` x4 | loading, mobileFormOpen, mobileFiltersOpen, editingTask |
-| `useEffect` x4 | Loading timer, ESC listener, scroll-to-top, search auto-focus |
+| `useState` x7 | loading, mobileFormOpen, mobileFiltersOpen, editingTask, createTaskOpen, searchOpen, filtersOpen |
+| `useEffect` x5 | Initialize tasks, loading timer, ESC listener, scroll-to-top, search auto-focus |
 | `useCallback` x5 | Stable handler references for memoised children |
 | `useRef` x1 | Scroll container — programmatic scroll-to-top on filter change |
+
+- **Mobile Drawer Orchestration:** Slides the sidebar into a full-height off-canvas drawer (width `320px`, max-width `88vw`) below `768px`. Wires up close buttons, backdrops, and an ESC keypress handler to dismiss panels.
+
 
 ---
 
@@ -349,6 +352,8 @@ Fully controlled form (all inputs driven by `useState`).
 - Real-time per-field validation fires on every `onChange`
 - Full validation sweep runs on submit
 - Success flash message is shown after a successful submission
+- **Mobile Stacking Layout:** The layout row always stacks input fields vertically inside the narrow sidebar (≤320px wide) to prevent cramped, unreadable fields.
+
 
 ---
 
@@ -360,6 +365,8 @@ Full-screen modal pre-filled from the selected task. Adds to `TaskForm`'s behavi
 - ESC key closes the modal (`useEffect` + `addEventListener`)
 - Body scroll locked while open (`document.body.style.overflow = 'hidden'`)
 - 200 ms simulated save delay to demonstrate a loading state
+- **Touch Target & Mobile Adjustments:** Implements standard touch target heights (min `44px`) on inputs and action buttons. Stacks side-by-side rows below `480px`, and stretches buttons to full-width block elements below `360px` for optimal usability on mobile.
+
 
 ---
 
@@ -388,8 +395,16 @@ Five clickable stat cards (Total, Pending, In Progress, Completed, Rejected):
 - Clicking applies or toggles that status as a filter
 - `aria-pressed` marks the active card for screen readers
 - An **Overdue** card appears conditionally when `overdueCount > 0`
+- **Mobile Overflow Handling:** Uses horizontal scrolling with `flex-shrink: 0` cards so they remain fully legible and do not collapse on narrow devices (such as iPhone SE).
 
 ---
+
+### `TaskList` — Task Grid Wrapper
+
+Renders loading skeleton states, empty filter/search results, or maps task cards.
+- **Responsive Grid:** Sets column sizes dynamically with `min(100%, 320px)` to prevent cards from overflowing containment.
+- **Mobile Layout:** Forces a strict single-column layout with tighter vertical gaps below `768px`.
+
 
 ### `ErrorBoundary` — Error Fallback
 
@@ -400,6 +415,8 @@ A class component (required — `getDerivedStateFromError` is not available as a
 ### `Header` — App Bar
 
 Reads `useTheme()` (which calls `useContext(ThemeContext)`) for the current theme value and toggle function. No theme-related props are threaded through the component tree — Context eliminates prop drilling.
+- **Height Scaling:** Standardized to `80px` height to accommodate centered titles and touch-friendly theme toggling across responsive layouts.
+
 
 ---
 
@@ -479,11 +496,13 @@ All visual constants are CSS custom properties on `:root`. No hardcoded hex valu
 
 | Breakpoint | Layout |
 |---|---|
-| 1024px and above | 300px sidebar, flexible main canvas |
-| 768px to 1024px | 240px sidebar, flexible main canvas |
-| Below 768px | Single column; sidebar becomes an off-canvas slide-in drawer |
+| 1280px and above | 320px sidebar (`--sidebar-width`), flexible main canvas |
+| 1024px to 1280px | 260px tablet sidebar (`--sidebar-width-tablet`), flexible main canvas |
+| 768px to 1024px | 240px compact sidebar, flexible main canvas |
+| Below 768px | Single column; sidebar becomes an off-canvas slide-in drawer (width 320px, max 88vw) |
 
-Mobile sidebar slides in with `transform: translateX(-100%)` to `translateX(0)`. A blurred backdrop closes it on click. ESC also closes it.
+Mobile sidebar slides in with `transform: translateX(-100%)` to `translateX(0)`. A blurred backdrop (`backdrop-filter: blur(4px)`) fades in and closes the panel on click. ESC key also closes active panels, and dedicated close buttons are displayed in the drawer header.
+
 
 ---
 
@@ -580,4 +599,4 @@ Union types create a closed set — adding a new status requires one change in `
 
 ---
 
-*Documentation by the candidate — 2026-07-02*
+*Documentation by the candidate — 2026-07-03*
